@@ -116,7 +116,7 @@ advice, please consult a licensed healthcare professional."
 
 
 def generate_rag_response(client, retriever, user_input, max_tokens=500, temperature=0.3, top_p=0.95):
-    relevant_docs = retriever.get_relevant_documents(query=user_input)
+    relevant_docs = retriever.invoke(user_input)
     context_for_query = ". ".join([d.page_content for d in relevant_docs])
 
     user_message = QNA_USER_TEMPLATE.format(context=context_for_query, question=user_input)
