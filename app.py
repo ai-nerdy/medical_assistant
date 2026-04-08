@@ -3,7 +3,7 @@ import streamlit as st
 from langchain_community.document_loaders import PyMuPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_openai import OpenAIEmbeddings
-from langchain_community.vectorstores import Chroma
+from langchain_community.vectorstores import FAISS
 from openai import OpenAI
 
 # ── Page config ──────────────────────────────────────────────
@@ -54,7 +54,7 @@ def build_vectorstore(pdf_path: str, _api_key: str, _api_base: str):
         openai_api_base=_api_base,
         chunk_size=100,
     )
-    vectorstore = Chroma.from_documents(chunks, embedding_model)
+    vectorstore = FAISS.from_documents(chunks, embedding_model)
     return vectorstore
 
 
