@@ -115,8 +115,17 @@ advice, please consult a licensed healthcare professional."
 """
 
 
-def generate_rag_response(client, retriever, user_input, max_tokens=500, temperature=0.3, top_p=0.95):
-    relevant_docs = retriever.invoke(user_input)
+def generate_rag_response(client, retriever, user_input, chat_history, max_tokens=500, temperature=0.3, top_p=0.95):
+    # Include recent conversation context for better retrieval on follow-up questions
+    if chat_history:
+        recent_context = " ".join(
+            [m["content"] for m in chat_history[-4:]]  # Last 2 exchanges
+        )
+        retrieval_query = f"{recent_context} {user_input}"
+    else:
+        retrieval_query = user_input
+
+    relevant_docs = retriever.invoke(retrieval_query)
     context_for_query = ". ".join([d.page_content for d in relevant_docs])
 
     user_message = QNA_USER_TEMPLATE.format(context=context_for_query, question=user_input)
@@ -196,6 +205,6 @@ if user_input:
     # Generate and display assistant response
     with st.chat_message("assistant"):
         with st.spinner("Thinking…"):
-            answer = generate_rag_response(client, retriever, user_input)
+            answer = generate_rag_response(client, retriever, user_input, st.session_state.messages)
         st.markdown(answer)
     st.session_state.messages.append({"role": "assistant", "content": answer})
